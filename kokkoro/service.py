@@ -278,7 +278,7 @@ class BroadcastService(Service):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         config = self._loaded_config
-        self.group_bc_tag = config.get('group_bc_tag') or defaultdict(lambda: self.broadcast_tag)
+        self.group_bc_tag = config.get('group_bc_tag', {})
         #service_names = (self.name,)       
          
         set_prefix = f'{self.name} set-bc-tag' #join_iterable(service_names, ('bc-tag',), sep=' ')
@@ -297,9 +297,11 @@ class BroadcastService(Service):
                 return
             new_tags = new_tags.split(' ')
             self.set_broadcast_tag(gid, new_tags)
+
             await bot.kkr_send(ev, f'服务 <{self.name}> 的推送频道的标签成功更新为 {new_tags}')
 
         async def get_bc_tag(bot, ev):
+            gid = ev.get_group_id()
             await bot.kkr_send(ev, f'服务 <{self.name}> 的推送频道的标签为 {self.group_bc_tag.get(gid, self.broadcast_tag)}')
 
         self.on_prefix(set_prefix)(set_bc_tag)
